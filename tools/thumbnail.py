@@ -74,9 +74,10 @@ def thumbnail():
 		for l in range(len(failed_list)):
 			print('%3d. %s' % ((l + 1), failed_list[l]))
 
-		failed_thumbnail_json()
+		if (len(failed_list) > 0):
+			failed_thumbnail_json()
 	else:
-		print('Length failure')
+		print('Invalid data count | (links) %3d : %3d (names)' % (len(thumbnail_links), len(names)))
 
 def failed_thumbnail_json():
 	global failed_list
@@ -84,9 +85,9 @@ def failed_thumbnail_json():
 	jdata = {}
 	data = []
 
-	for thumbnail in failed_list:
-		jdata['name'] = thumbnail[0]
-		jdata['link'] = thumbnail[1]
+	for failed_data in failed_list:
+		jdata['name'] = failed_data[0]
+		jdata['link'] = failed_data[1]
 		data.append(copy.deepcopy(jdata))
 
 	with open(os.path.join(path, filename_failed_link), 'w', encoding = 'utf8') as fileout:
