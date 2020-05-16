@@ -81,7 +81,8 @@ def icon():
 	for l in range(len(failed_list)):
 		print('%3d. %s' % ((l + 1), failed_list[l]))
 
-	failed_icon_json()
+	if (len(failed_list) > 0):
+		failed_icon_json()
 
 def failed_icon_json():
 	global failed_list
@@ -89,9 +90,9 @@ def failed_icon_json():
 	jdata = {}
 	data = []
 
-	for icon in failed_list:
-		jdata['name'] = icon[0]
-		jdata['link'] = icon[1]
+	for failed_data in failed_list:
+		jdata['name'] = failed_data[0]
+		jdata['link'] = failed_data[1]
 		data.append(copy.deepcopy(jdata))
 
 	with open(os.path.join(path, filename_failed_link), 'w', encoding = 'utf8') as fileout:
