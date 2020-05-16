@@ -85,9 +85,10 @@ def image():
 	for i in range(len(failed_list)):
 		print('%d. %s' % ((i + 1), failed_list[i]))
 
-	failed_json()
+	if (len(failed_list) > 0):
+		failed_image_json()
 
-def failed_json():
+def failed_image_json():
 	global failed_list
 
 	jdata = {}
