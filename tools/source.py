@@ -121,46 +121,50 @@ def operator_details():
 
 	if (len(cn_data) == len(en_data)):
 		for data in en_data:
-			print('Collecting %s data...' % data[0])
-			_url = data[4]
-			request = requests.get(_url, headers = header, timeout = 20)
-			soup = bs4.BeautifulSoup(request.text, 'html.parser')
+			try:
+				print('Collecting %s data...' % data[0])
+				_url = data[4]
+				request = requests.get(_url, headers = header, timeout = 20)
+				soup = bs4.BeautifulSoup(request.text, 'html.parser')
 
-			table = soup.find('div', {'class': 'op-info'})
-			rows = table.find_all('tr')
-			rows.pop(0)
-			rows.pop(0)
-			cols = rows[1].find_all('td')
+				table = soup.find('div', {'class': 'op-info'})
+				rows = table.find_all('tr')
+				rows.pop(0)
+				rows.pop(0)
+				cols = rows[1].find_all('td')
 
-			_acquisition = cols[1].text.replace('\n', '').split(', ')
-			_cn_name = cols[2].find('big').text
+				_acquisition = cols[1].text.replace('\n', '').split(', ')
+				_cn_name = cols[2].find('big').text
 
-			for i, data_cn in enumerate(cn_data):
-				for j, cn_name in enumerate(data_cn):
-					if (cn_name == _cn_name):
-						if (cn_data[i][0] != data[0]):
-							cn_data[i][0] = data[0]
+				for i, data_cn in enumerate(cn_data):
+					for j, cn_name in enumerate(data_cn):
+						if (cn_name == _cn_name):
+							if (cn_data[i][0] != data[0]):
+								cn_data[i][0] = data[0]
 
-						operator = [cn_data[i][0], cn_data[i][1], cn_data[i][2], cn_data[i][3], data[1], data[2], data[3], _acquisition, _url, cn_data[i][4]]
+							operator = [cn_data[i][0], cn_data[i][1], cn_data[i][2], cn_data[i][3], data[1], data[2], data[3], _acquisition, _url, cn_data[i][4]]
 
-						if (operator not in operator_list):
-							updated = False
-							directory = os.path.join(path, ('image/operators/' + data[0]))
+							if (operator not in operator_list):
+								updated = False
+								directory = os.path.join(path, ('image/operators/' + data[0]))
 
-							for k, old_data in enumerate(operator_list):
-								if (operator[0] == old_data[0]):
-									updated = True
+								for k, old_data in enumerate(operator_list):
+									if (operator[0] == old_data[0]):
+										updated = True
 
-									updated_operator.append([old_data, operator])
-									operator_list.pop(k)
+										updated_operator.append([old_data, operator])
+										operator_list.pop(k)
 
-							operator_list.append(operator)
+								operator_list.append(operator)
 
-							if (not updated):
-								added_operator.append(operator)
+								if (not updated):
+									added_operator.append(operator)
 
-							if (not os.path.exists(directory)):
-								os.mkdir(directory)
+								if (not os.path.exists(directory)):
+									os.mkdir(directory)
+			except Exception as e:
+				print('Collecting %s data failed | %s' % (data[0], str(e)))
+				failed_list.append([data[0], data[4]])
 
 			time.sleep(2)
 
@@ -186,7 +190,9 @@ def operator_details():
 		for o in range(len(failed_list)):
 			print('%3d. %s' % ((o + 1), failed_list[o]))
 
-		failed_data_json()
+		if (len(failed_list) > 0):
+			failed_data_json()
+
 		data_source_json()
 	else:
 		print('Invalid data count | (cn) %3d : %3d (en)' % (len(cn_data), len(en_data)))
@@ -197,9 +203,9 @@ def failed_data_json():
 	jdata = {}
 	data = []
 
-	for icon in failed_list:
-		jdata['name'] = icon[0]
-		jdata['link'] = icon[1]
+	for failed_data in failed_list:
+		jdata['name'] = failed_data[0]
+		jdata['link'] = failed_data[1]
 		data.append(copy.deepcopy(jdata))
 
 	with open(os.path.join(path, filename_failed_link), 'w', encoding = 'utf8') as fileout:
